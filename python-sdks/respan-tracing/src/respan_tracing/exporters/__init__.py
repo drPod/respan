@@ -5,8 +5,9 @@ This module contains various span exporters that handle exporting spans
 to different destinations like the Respan API, files, or other systems.
 """
 
-from .respan import RespanSpanExporter
+from .respan import RespanSpanExporter, EnrichedSpan
 
 __all__ = [
     "RespanSpanExporter",
+    "EnrichedSpan",
 ]

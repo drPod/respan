@@ -110,7 +110,8 @@ class RespanTracer:
             api_key=self.api_key,
             headers=self.headers,
         )
-        
+        self._default_exporter = exporter
+
         # Add without name or filter - receives ALL spans (backward compatible behavior)
         self.add_processor(
             exporter=exporter,
@@ -220,6 +221,16 @@ class RespanTracer:
         filter_str = "auto" if (filter_fn is not None and name is not None) else ("custom" if filter_fn is not None else "none")
         logger.info(f"Added span processor{name_str} with filter: {filter_str}")
     
+    def register_enricher(self, fn: Callable) -> None:
+        """Register an enricher on the default OTLP exporter.
+
+        The enricher runs on every export batch before root-span promotion.
+        No-op if no default exporter has been created (e.g. no API key).
+        """
+        exporter = getattr(self, "_default_exporter", None)
+        if exporter is not None:
+            exporter.register_enricher(fn)
+
     def _setup_propagation(self, propagator: Optional[TextMapPropagator]):
         """Setup context propagation"""
         if propagator:
